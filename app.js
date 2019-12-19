@@ -1,30 +1,42 @@
-
 const port = 3005;
-var app = require('express')();
-var http = require('http').createServer(app);
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
+const app = require('express')();
+const http = require('http').createServer(app);
+const server = require('http').createServer(app);
+const io = require('socket.io')(server);
+const obstacle = require('./obstacle');
+
+let players = [];
 
 io.on('connection', socket => {
     console.log('a user connected');
+    console.log('socket id', socket.id);
+
+    players.push(socket.id);
+
+    if (players.length == 1) {
+        console.log('waiting to second player...');
+    } else if (players.length == 2) {
+        console.log('lets play');
+        socket.emit('start game', { players: players });
+        setInterval(() => {
+            socket.emit('obstacle', { obstacle: obstacle.ROCK });
+            console.log('obstacle: ' + obstacle.ROCK);
+            
+        }, 3000)
+    } else {
+        console.log('something wrong...');
+    }
 
     socket.on('disconnect', reason => {
-        console.log('user disconnected');
+        console.log('user disconnected', socket.id);
+        let index = players.indexOf(socket.id);
+        if (index > -1) {
+            players.splice(index, 1);
+        }
+        console.log('there is ' + players.length + 1 + 'players now.');
     });
 
-    socket.on('room', data => {
-        console.log('room join');
-        console.log(data);
-        socket.join(data.room);
-    });
-
-    socket.on('leave room', data => {
-        console.log('leaving room');
-        console.log(data);
-        socket.leave(data.room)
-    });
-
-    socket.on('new message', data => {
+    socket.on('game start', data => {
         console.log(data.room);
         socket.broadcast
             .to(data.room)
