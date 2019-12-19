@@ -1,55 +1,35 @@
+
 const port = 3005;
-const app = require('express')();
-const cors = require('cors');
-const config = require('config');
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-const obstacle = require('./obstacle');
+var app = require('express')();
+var http = require('http').createServer(app);
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
 
-const starterRouter = require('./src/starter.routes');
+io.on('connection', socket => {
+    console.log('a user connected');
 
+    socket.on('disconnect', reason => {
+        console.log('user disconnected');
+    });
 
-
-io.on('connection', function (socket) {
-    console.log('a user connected', socket.id);
-
-    socket.on('room', function (data) {
+    socket.on('room', data => {
+        console.log('room join');
         console.log(data);
-        // socket.emit('acknowledge', 'Acknowledged');
+        socket.join(data.room);
     });
-    socket.on('joined', function (data) {
+
+    socket.on('leave room', data => {
+        console.log('leaving room');
         console.log(data);
-        socket.emit('acknowledge', 'Acknowledged');
+        socket.leave(data.room)
     });
-    socket.on('chat message', function (msg) {
-        console.log('message: ' + msg);
-        socket.emit('response message', msg + '  from server');
+
+    socket.on('new message', data => {
+        console.log(data.room);
+        socket.broadcast
+            .to(data.room)
+            .emit('receive message', data)
     });
-    setInterval(() => {
-        socket.emit('obstacle', { obstacle: obstacle.obstacle });
-    }, 3000)
 });
 
-app.use(cors({
-    origin: config.clientUrl,
-    optionsSuccessStatus: 200,
-    credentials: true
-}));
-
-app.options('*', cors({
-    origin: config.clientUrl,
-    optionsSuccessStatus: 200,
-    credentials: true
-}));
-
-app.use((err, req, res, next) => {
-    const status = err.status ? err.status : 500;
-    res.status(status);
-    res.send({ error: err });
-});
-
-app.use('/starter', starterRouter);
-
-app.listen(port, () => {
-    console.log(`api is listening on ${port}`);
-});
+server.listen(port);
