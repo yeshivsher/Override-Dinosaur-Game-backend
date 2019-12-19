@@ -11,19 +11,24 @@ let obstaclesInterval;
 io.on('connection', socket => {
     console.log('a user connected');
     console.log('socket id', socket.id);
+    socket.join('some room' + socket.id);
+    console.log('some room' + socket.id);
+    
 
     players.push(socket.id);
 
     if (players.length == 1) {
         console.log('waiting to second player...');
     } else if (players.length == 2) {
-        console.log('lets play');
         socket.emit('start game', { players: players });
+        console.log(players[0]);
+        console.log(players[1]);
 
         obstaclesInterval = setInterval(() => {
+            socket.to('some room' + players[0]).emit('obstacle', { obstacle: obstacle.CROW });
             socket.emit('obstacle', { obstacle: obstacle.ROCK });
-            console.log('obstacle: ' + obstacle.ROCK);
         }, 3000);
+
     } else {
         console.log('something wrong...');
     }
@@ -37,7 +42,7 @@ io.on('connection', socket => {
         if (index > -1) {
             players.splice(index, 1);
         }
-        console.log('there is ' + players.length + 1 + 'players now.');
+        console.log('there is ' + (players.length + 1) + ' players now.');
     });
 
     socket.on('game start', data => {
