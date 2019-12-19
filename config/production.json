@@ -1,0 +1,14 @@
+{
+    "enviroment_name": "production",
+    "clientUrl": "http://localhost:4200",
+    "port": 8080,
+    "database": {
+        "client": "mssql",
+        "connection": {
+            "user": "",
+            "password": "",
+            "server": "",
+            "database": ""
+        }
+    }
+}

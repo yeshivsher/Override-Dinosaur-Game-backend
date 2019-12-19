@@ -1,0 +1,26 @@
+{
+  "name": "starter-template-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://elazard@bitbucket.org/elazard/nodejs-angular-template.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "config": "^1.30.0",
+    "cors": "^2.8.5",
+    "express": "^5.0.0-alpha.1",
+    "joi": "^14.3.1",
+    "knex": "^0.12.9",
+    "lodash": "^4.17.11",
+    "mssql": "^3.3.0",
+    "request": "^2.83.0"
+  }
+}
