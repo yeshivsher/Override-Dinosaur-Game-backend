@@ -6,6 +6,7 @@ const io = require('socket.io')(server);
 const obstacle = require('./obstacle');
 
 let players = [];
+let obstaclesInterval;
 
 io.on('connection', socket => {
     console.log('a user connected');
@@ -18,17 +19,20 @@ io.on('connection', socket => {
     } else if (players.length == 2) {
         console.log('lets play');
         socket.emit('start game', { players: players });
-        setInterval(() => {
+
+        obstaclesInterval = setInterval(() => {
             socket.emit('obstacle', { obstacle: obstacle.ROCK });
             console.log('obstacle: ' + obstacle.ROCK);
-            
-        }, 3000)
+        }, 3000);
     } else {
         console.log('something wrong...');
     }
 
     socket.on('disconnect', reason => {
         console.log('user disconnected', socket.id);
+
+        clearInterval(obstaclesInterval);
+        // delete the disconnect player from players array
         let index = players.indexOf(socket.id);
         if (index > -1) {
             players.splice(index, 1);
