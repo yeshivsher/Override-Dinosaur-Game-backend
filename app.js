@@ -11,22 +11,24 @@ let obstaclesInterval;
 io.on('connection', socket => {
     console.log('a user connected');
     console.log('socket id', socket.id);
-    socket.join('some room' + socket.id);
-    console.log('some room' + socket.id);
-    
 
-    players.push(socket.id);
+    socket.on('obsticales', (id, obsticaleRival) => {
+        io.to(players.filter(() => playerID !== id)).emit(obsticaleRival);
+    })
+
+    if (players.length <= 2) {
+        players.push(socket.id);
+    }
 
     if (players.length == 1) {
         console.log('waiting to second player...');
     } else if (players.length == 2) {
         socket.emit('start game', { players: players });
-        console.log(players[0]);
-        console.log(players[1]);
 
         obstaclesInterval = setInterval(() => {
-            socket.to('some room' + players[0]).emit('obstacle', { obstacle: obstacle.CROW });
-            socket.emit('obstacle', { obstacle: obstacle.ROCK });
+            io.to(players[0]).emit('obstacle', { obstacle: obstacle.CROW });
+            io.to(players[1]).emit('obstacle', { obstacle: obstacle.ROCK });
+            io.sockets.emit('obstacle', { obstacle: obstacle.ROCK });
         }, 3000);
 
     } else {
