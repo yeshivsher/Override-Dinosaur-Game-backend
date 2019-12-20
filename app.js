@@ -24,11 +24,11 @@ io.on('connection', socket => {
         } else if (players.length == 2) {
             socket.emit('start game', { players: players });
 
-            obstaclesInterval = setInterval(() => {
+            /*obstaclesInterval = setInterval(() => {
                 io.to(players[0]).emit('obstacle', { obstacle: obstacle.CROW });
                 io.to(players[1]).emit('obstacle', { obstacle: obstacle.ROCK });
                 io.sockets.emit('obstacle', { obstacle: obstacle.ROCK });
-            }, 3000);
+            }, 3000);*/
 
         } else {
             console.log('something wrong...');
@@ -53,6 +53,11 @@ io.on('connection', socket => {
         }
         console.log('there is ' + (players.length + 1) + ' players now.');
     });
+
+    socket.on('change background to rival', () => {
+        io.to(players.filter((playerID) => playerID !== socket.id))
+            .emit('background changed to rival');
+    })
 });
 
 server.listen(port);
